@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"currency-converter-rev2/internal/currency/entity"
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ExchangeRateData struct {
@@ -16,10 +16,10 @@ type ExchangeRateData struct {
 }
 
 type exchangeRateRepo struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
-func NewExchangeRateRepo(db *sql.DB) *exchangeRateRepo {
+func NewExchangeRateRepo(db *pgxpool.Pool) *exchangeRateRepo {
 	return &exchangeRateRepo{
 		db: db,
 	}
