@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"currency-converter-rev2/internal/currency/entity"
 	"currency-converter-rev2/internal/currency/service"
 	"encoding/json"
 	"github.com/go-chi/chi"
@@ -39,9 +38,9 @@ func (c Handler) InitRoutes() *chi.Mux {
 	//Currencies
 	router.Get("/currencies", c.GetAllCurrencies)
 	router.Post("/currency", c.CreateCurrency)
-	router.Put("/currency/{code}", c.UpdateCurrencyByCode)
-	//currencyroute.Delete("/currencies/currency/{id}", controllers.DeleteCurrency)
-	//
+	router.Put("/currency/{id}", c.UpdateCurrencyById)
+	router.Delete("/currencies/currency/{id}", c.DeleteCurrency)
+
 	////ExchangeRates
 	//exchangeRouter := chi.NewRouter()
 	//exchangeRouter.Get("/exchangeRates", controllers.GetAllExchangeRates)
@@ -51,6 +50,7 @@ func (c Handler) InitRoutes() *chi.Mux {
 }
 
 func (c *Handler) CreateCurrency(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	var currencyCreateView CurrencyCreateView
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -85,6 +85,10 @@ func (c *Handler) CreateCurrency(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+	render.JSON(w, r, map[string]string{
+		"status":  "success",
+		"message": "Currency created successfully",
+	})
 }
 
 func (c *Handler) GetAllCurrencies(w http.ResponseWriter, r *http.Request) {
@@ -107,20 +111,64 @@ func (c *Handler) GetAllCurrencies(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (c *Handler) UpdateCurrencyByCode(w http.ResponseWriter, r *http.Request) {
-	var currencyData entity.Currency
-	err := json.NewDecoder(r.Body).Decode(&currencyData)
+func (c *Handler) UpdateCurrencyById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var currencyCreateView CurrencyCreateView
+	id := chi.URLParam(r, "id")
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		log.Printf("Error decoding JSON: %v\n", err)
+		log.Printf("error reading body: %v\n", err)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Bad request",
+		})
 		return
 	}
 
-	err = c.currencyServ.UpdateCurrency(r.Context(), currencyData)
+	err = json.Unmarshal(body, &currencyCreateView)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		log.Printf("Error updating currency: %v\n", err)
+		log.Printf("Error decoding JSON: %v\n", err)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Bad Request",
+		})
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	err = c.currencyServ.UpdateCurrency(r.Context(), currencyCreateView.MapToEntity(), id)
+	if err != nil {
+		log.Printf("Error updating currency: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Internal Server Error",
+		})
+
+	}
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, map[string]string{
+		"status":  "success",
+		"message": "Currency updated successfully",
+	})
+}
+
+func (c *Handler) DeleteCurrency(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	id := chi.URLParam(r, "id")
+	err := c.currencyServ.DeleteCurrencyById(r.Context(), id)
+	if err != nil {
+		log.Printf("Error deleting currency: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Internal Server Error",
+		})
+
+	}
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, map[string]string{
+		"status":  "success",
+		"message": "Currency deleted successfully",
+	})
 }

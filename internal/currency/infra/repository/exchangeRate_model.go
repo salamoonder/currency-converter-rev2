@@ -4,6 +4,7 @@ import (
 	"context"
 	"currency-converter-rev2/internal/currency/entity"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"time"
 )
 
 type ExchangeRateData struct {
@@ -13,6 +14,9 @@ type ExchangeRateData struct {
 	Rate            float64      `json:"rate"`
 	Amount          float64      `json:"amount,omitempty"`
 	ConvertedAmount float64      `json:"convertedAmount,omitempty"`
+	CreatedAt       time.Time    `json:"createdAt"`
+	UpdatedAt       time.Time    `json:"updatedAt,omitempty"`
+	DeletedAt       time.Time    `json:"deletedAt,omitempty"`
 }
 
 type exchangeRateRepo struct {
@@ -32,6 +36,9 @@ func (e *ExchangeRateData) MapToRepo(exchangeRate entity.ExchangeRate) {
 	e.Rate = exchangeRate.Rate
 	e.Amount = exchangeRate.Amount
 	e.ConvertedAmount = exchangeRate.ConvertedAmount
+	e.CreatedAt = exchangeRate.CreatedAt
+	e.UpdatedAt = exchangeRate.UpdatedAt
+	e.DeletedAt = exchangeRate.DeletedAt
 }
 
 func (e *ExchangeRateData) MapToEntity() entity.ExchangeRate {
@@ -42,6 +49,9 @@ func (e *ExchangeRateData) MapToEntity() entity.ExchangeRate {
 	rate.Rate = e.Rate
 	rate.Amount = e.Amount
 	rate.ConvertedAmount = e.ConvertedAmount
+	rate.CreatedAt = e.CreatedAt
+	rate.UpdatedAt = e.UpdatedAt
+	rate.DeletedAt = e.DeletedAt
 	return rate
 }
 

@@ -1,6 +1,9 @@
 package controller
 
-import "currency-converter-rev2/internal/currency/entity"
+import (
+	"currency-converter-rev2/internal/currency/entity"
+	"time"
+)
 
 type CurrencyCreateView struct {
 	Code string `json:"code"`
@@ -33,10 +36,11 @@ func (c *CurrencyCreateView) MapToViewList(currIn []entity.Currency) []CurrencyC
 }
 
 type CurrencyView struct {
-	ID   string `json:"id"`
-	Code string `json:"code"`
-	Name string `json:"name"`
-	Sign string `json:"sign"`
+	ID        string    `json:"id"`
+	Code      string    `json:"code"`
+	Name      string    `json:"name"`
+	Sign      string    `json:"sign"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func (c *CurrencyView) MapToView(curr entity.Currency) {
@@ -44,6 +48,7 @@ func (c *CurrencyView) MapToView(curr entity.Currency) {
 	c.Code = curr.Code
 	c.Name = curr.Name
 	c.Sign = curr.Sign
+	c.CreatedAt = curr.CreatedAt
 }
 func (c *CurrencyView) MapToViewList(currIn []entity.Currency) []CurrencyView {
 	var currView []CurrencyView
