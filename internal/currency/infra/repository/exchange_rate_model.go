@@ -1,9 +1,7 @@
 package repository
 
 import (
-	"context"
 	"currency-converter-rev2/internal/currency/entity"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"time"
 )
 
@@ -18,15 +16,23 @@ type ExchangeRateData struct {
 	UpdatedAt       time.Time    `json:"updatedAt,omitempty"`
 	DeletedAt       time.Time    `json:"deletedAt,omitempty"`
 }
-
-type exchangeRateRepo struct {
-	db *pgxpool.Pool
+type ShortExchangeRateData struct {
+	BaseCurrency   string  `json:"baseCurrency"`
+	TargetCurrency string  `json:"targetCurrency"`
+	Rate           float64 `json:"rate"`
 }
 
-func NewExchangeRateRepo(db *pgxpool.Pool) *exchangeRateRepo {
-	return &exchangeRateRepo{
-		db: db,
-	}
+func (e *ShortExchangeRateData) MapToRepo(rate entity.ShortExchangeRate) {
+	e.BaseCurrency = rate.BaseCurrency
+	e.TargetCurrency = rate.TargetCurrency
+	e.Rate = rate.Rate
+}
+func (e *ShortExchangeRateData) MapToEntity() entity.ShortExchangeRate {
+	var rate entity.ShortExchangeRate
+	rate.BaseCurrency = e.BaseCurrency
+	rate.TargetCurrency = e.TargetCurrency
+	rate.Rate = e.Rate
+	return rate
 }
 
 func (e *ExchangeRateData) MapToRepo(exchangeRate entity.ExchangeRate) {
@@ -53,16 +59,4 @@ func (e *ExchangeRateData) MapToEntity() entity.ExchangeRate {
 	rate.UpdatedAt = e.UpdatedAt
 	rate.DeletedAt = e.DeletedAt
 	return rate
-}
-
-func (r exchangeRateRepo) CreateExchangeRate(ctx context.Context, exch entity.ExchangeRate) error {
-	exchRepo := ExchangeRateData{}
-	exchRepo.MapToRepo(exch)
-	return nil
-}
-
-func (r exchangeRateRepo) UpdateExchangeRate(ctx context.Context, exch entity.ExchangeRate) error {
-	exchRepo := ExchangeRateData{}
-	exchRepo.MapToRepo(exch)
-	return nil
 }

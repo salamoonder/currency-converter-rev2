@@ -27,9 +27,10 @@ func main() {
 		return
 	}
 	currencyRepo := repository.NewCurrencyRepo(pool)
-	currencyServ := service.NewService(currencyRepo)
+	exchangeRateRepo := repository.NewExchangeRateRepo(pool)
+	service := service.NewService(currencyRepo, exchangeRateRepo)
 
-	contr := controller.NewHandler(currencyServ)
+	contr := controller.NewHandler(service)
 	mux := contr.InitRoutes()
 	startHttp(mux, cfg.HTTPPort)
 }

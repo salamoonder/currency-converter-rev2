@@ -16,6 +16,12 @@ type ExchangeRate struct {
 	DeletedAt       time.Time
 }
 
+type ShortExchangeRate struct {
+	BaseCurrency   string
+	TargetCurrency string
+	Rate           float64
+}
+
 type Currency struct {
 	ID        string
 	Code      string

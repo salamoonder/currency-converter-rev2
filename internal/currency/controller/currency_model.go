@@ -59,3 +59,12 @@ func (c *CurrencyView) MapToViewList(currIn []entity.Currency) []CurrencyView {
 	}
 	return currView
 }
+func (c *CurrencyView) MapToEntity() entity.Currency {
+	var curr entity.Currency
+	curr.ID = c.ID
+	curr.Code = c.Code
+	curr.Name = c.Name
+	curr.Sign = c.Sign
+	curr.CreatedAt = c.CreatedAt
+	return curr
+}

@@ -38,12 +38,12 @@ func (c Handler) InitRoutes() *chi.Mux {
 	//Currencies
 	router.Get("/currencies", c.GetAllCurrencies)
 	router.Post("/currency", c.CreateCurrency)
-	router.Put("/currency/{id}", c.UpdateCurrencyById)
-	router.Delete("/currencies/currency/{id}", c.DeleteCurrency)
+	router.Put("/currency/{id}", c.UpdateCurrency)
+	router.Delete("/currency/{id}", c.DeleteCurrency)
 
-	////ExchangeRates
-	//exchangeRouter := chi.NewRouter()
-	//exchangeRouter.Get("/exchangeRates", controllers.GetAllExchangeRates)
+	//ExchangeRates
+	router.Post("/exchange-rate", c.CreateExchageRate)
+	router.Get("/exchange-rates", c.GetAllExchageRates)
 	//exchangeRouter.Get("/exchangeRates/exchangeRate/{code}", controllers.GetExchangeRateByCode)
 	//exchangeRouter.Get("/exchangeRates/exchangeRate/exchange{code}", controllers.ExchangeAmount)
 	return router
@@ -111,7 +111,7 @@ func (c *Handler) GetAllCurrencies(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (c *Handler) UpdateCurrencyById(w http.ResponseWriter, r *http.Request) {
+func (c *Handler) UpdateCurrency(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var currencyCreateView CurrencyCreateView
 	id := chi.URLParam(r, "id")
@@ -170,5 +170,65 @@ func (c *Handler) DeleteCurrency(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, map[string]string{
 		"status":  "success",
 		"message": "Currency deleted successfully",
+	})
+}
+func (c *Handler) CreateExchageRate(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var exchageRateCreateView CreateExchangeRateView
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("error reading body: %v\n", err)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Bad request",
+		})
+		return
+	}
+
+	err = json.Unmarshal(body, &exchageRateCreateView)
+	if err != nil {
+		log.Printf("Error decoding JSON: %v\n", err)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Bad Request",
+		})
+		return
+	}
+
+	err = c.currencyServ.CreateExchangeRate(r.Context(), exchageRateCreateView.MapToEntity())
+	if err != nil {
+		log.Printf("Error creating exchange rate: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Internal Server Error",
+		})
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	render.JSON(w, r, map[string]string{
+		"status":  "success",
+		"message": "Exchange rate created successfully",
+	})
+}
+func (c *Handler) GetAllExchageRates(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	eRates, err := c.currencyServ.GetAllExchangeRates(r.Context())
+	if err != nil {
+		log.Printf("Error getting exchange rates: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Internal Server Error",
+		})
+		return
+	}
+	var eRview ExchangeRateView
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, map[string]interface{}{
+		"status":        true,
+		"exchangeRates": eRview.MapToViewList(eRates),
 	})
 }
