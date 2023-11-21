@@ -44,7 +44,7 @@ func (c Handler) InitRoutes() *chi.Mux {
 	//ExchangeRates
 	router.Post("/exchange-rate", c.CreateExchageRate)
 	router.Get("/exchange-rates", c.GetAllExchageRates)
-	//exchangeRouter.Get("/exchangeRates/exchangeRate/{code}", controllers.GetExchangeRateByCode)
+	router.Get("/exchange-rate/{code}", c.GetExchangeRateByCode)
 	//exchangeRouter.Get("/exchangeRates/exchangeRate/exchange{code}", controllers.ExchangeAmount)
 	return router
 }
@@ -230,5 +230,26 @@ func (c *Handler) GetAllExchageRates(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, map[string]interface{}{
 		"status":        true,
 		"exchangeRates": eRview.MapToViewList(eRates),
+	})
+}
+
+func (c *Handler) GetExchangeRateByCode(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	code := chi.URLParam(r, "code")
+	eRate, err := c.currencyServ.GetExchangeRateByCode(r.Context(), code)
+	if err != nil {
+		log.Printf("Error getting exchange rate: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "Internal Server Error",
+		})
+	}
+	var eRview ExchangeRateView
+
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, map[string]interface{}{
+		"status":       true,
+		"exchangeRate": eRview.MapToView(eRate),
 	})
 }

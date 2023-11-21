@@ -170,22 +170,27 @@
 
 <p>Пример ответа - JSON представление обновлённой записи в базе данных, включая её ID:</p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
-    "id": 0,
-    "baseCurrency": {
-        "id": 0,
-        "name": "United States dollar",
-        "code": "USD",
-        "sign": "$"
+    "exchangeRate": {
+        "id": "3",
+        "baseCurrency": {
+            "id": "1",
+            "code": "USD",
+            "name": "American dollar",
+            "sign": "$",
+            "createdAt": "2023-11-21T16:29:55.759502+05:00"
+        },
+        "targetCurrency": {
+            "id": "2",
+            "code": "KZT",
+            "name": "Kazakh tenge",
+            "sign": "T",
+            "createdAt": "2023-11-21T16:30:19.310892+05:00"
+        },
+        "rate": 470,
+        "createdAt": "2023-11-21T18:01:49.23904+05:00"
     },
-    "targetCurrency": {
-        "id": 1,
-        "name": "Euro",
-        "code": "EUR",
-        "sign": "€"
-    },
-    "rate": 0.99
+    "status": true
 }
-
 </code></pre></div></div>
 
 <p>HTTP коды ответов:</p>

@@ -14,7 +14,9 @@ type IService interface {
 	CreateExchangeRate(ctx context.Context, exch entity.ShortExchangeRate) error
 	UpdateExchangeRate(ctx context.Context, exch entity.ExchangeRate) error
 	GetAllExchangeRates(ctx context.Context) ([]entity.ExchangeRate, error)
+	GetExchangeRateByCode(ctx context.Context, code string) (entity.ExchangeRate, error)
 }
+
 type ICurrencyRepository interface {
 	CreateCurrency(ctx context.Context, curr entity.Currency) error
 	UpdateCurrency(ctx context.Context, curr entity.Currency, id string) error
@@ -27,5 +29,5 @@ type IExchangeRateRepository interface {
 	CreateExchangeRate(ctx context.Context, exch entity.ShortExchangeRate) error
 	UpdateExchangeRate(ctx context.Context, exch entity.ExchangeRate) error
 	GetAllExchangeRates(ctx context.Context) ([]entity.ExchangeRate, error)
-	//GetExchangeRateById(ctx context.Context, id string) (entity.ExchangeRate, error)
+	GetExchangeRateByCode(ctx context.Context, code string) (entity.ExchangeRate, error)
 }

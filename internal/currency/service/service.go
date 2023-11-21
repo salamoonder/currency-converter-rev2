@@ -41,3 +41,6 @@ func (s *service) DeleteCurrencyById(ctx context.Context, id string) error {
 func (s *service) GetAllExchangeRates(ctx context.Context) ([]entity.ExchangeRate, error) {
 	return s.exchangeRate.GetAllExchangeRates(ctx)
 }
+func (s *service) GetExchangeRateByCode(ctx context.Context, code string) (entity.ExchangeRate, error) {
+	return s.exchangeRate.GetExchangeRateByCode(ctx, code)
+}

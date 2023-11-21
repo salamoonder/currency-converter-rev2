@@ -27,12 +27,13 @@ type ExchangeRateView struct {
 	CreatedAt      time.Time    `json:"createdAt"`
 }
 
-func (c *ExchangeRateView) MapToView(er entity.ExchangeRate) {
+func (c *ExchangeRateView) MapToView(er entity.ExchangeRate) ExchangeRateView {
 	c.ID = er.ID
 	c.BaseCurrency.MapToView(er.BaseCurrency)
 	c.TargetCurrency.MapToView(er.TargetCurrency)
 	c.Rate = er.Rate
 	c.CreatedAt = er.CreatedAt
+	return *c
 }
 
 func (c *ExchangeRateView) MapToViewList(erIn []entity.ExchangeRate) []ExchangeRateView {
